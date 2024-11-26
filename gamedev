@@ -1,0 +1,97 @@
+import pygame
+from pygame.locals import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
+def draw_cube():
+    # Define vertices for the cube
+    vertices = [
+        (1, 1, 1), (1, 1, -1), (1, -1, -1), (1, -1, 1),
+        (-1, 1, 1), (-1, -1, -1), (-1, -1, 1), (-1, 1, -1)
+    ]
+
+    # Define triangles based on the vertices
+    triangles = [
+        (0, 1, 2), (0, 2, 3),  # Front face
+        (3, 2, 5), (3, 5, 6),  # Right face
+        (6, 5, 7), (6, 7, 4),  # Back face
+        (4, 7, 1), (4, 1, 0),  # Left face
+        (1, 7, 5), (1, 5, 2),  # Top face
+        (0, 3, 6), (0, 6, 4)  # Bottom face
+    ]
+
+    glBegin(GL_TRIANGLES)
+    for triangle in triangles:
+        for vertex in triangle:
+            glVertex3fv(vertices[vertex])
+    glEnd()
+
+def draw_object():
+    # Cube colors
+    colors = [
+        (1, 0, 0),  # Red
+        (0, 1, 0),  # Green
+        (0, 0, 1),  # Blue
+        (1, 1, 0)   # Yellow
+    ]
+
+    # Cube transformations (scale and position)
+    transformations = [
+        (0.5, (-2, 0, 0)),  # Small red cube, shifted left
+        (1.0, (0, 0, 0)),   # Medium green cube, center
+        (1.5, (2, 0, 0)),   # Large blue cube, shifted right
+        (0.75, (0, 2, 0))   # Medium yellow cube, above center
+    ]
+
+    for i, (scale, position) in enumerate(transformations):
+        glPushMatrix()
+        glColor3f(*colors[i])  # Set the color
+        glTranslatef(*position)  # Set position
+        glScalef(scale, scale, scale)  # Set size
+        draw_cube()  # Draw the cube
+        glPopMatrix()
+
+def main():
+    pygame.init()
+    display = (800, 600)
+    pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+    pygame.display.set_caption("04 Lab 1 -NIEVA")
+
+    glEnable(GL_DEPTH_TEST)
+    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    glTranslatef(0, 0, -10)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    glTranslatef(-0.1, 0, 0)  # Move left
+                elif event.key == pygame.K_d:
+                    glTranslatef(0.1, 0, 0)  # Move right
+                elif event.key == pygame.K_w:
+                    glTranslatef(0, 0.1, 0)  # Move up
+                elif event.key == pygame.K_s:
+                    glTranslatef(0, -0.1, 0)  # Move down
+                elif event.key == pygame.K_q:
+                    glTranslatef(0, 0, 0.1)  # Move forward
+                elif event.key == pygame.K_e:
+                    glTranslatef(0, 0, -0.1)  # Move backward
+                elif event.key == pygame.K_LEFT:
+                    glRotatef(5, 0, 1, 0)  # Rotate left
+                elif event.key == pygame.K_RIGHT:
+                    glRotatef(-5, 0, 1, 0)  # Rotate right
+                elif event.key == pygame.K_UP:
+                    glRotatef(5, 1, 0, 0)  # Rotate up
+                elif event.key == pygame.K_DOWN:
+                    glRotatef(-5, 1, 0, 0)  # Rotate down
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        draw_object()  # Call draw_object instead of draw_cube
+        pygame.display.flip()
+        pygame.time.wait(15)
+
+if __name__ == "__main__":
+    main()
